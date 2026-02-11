@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Lokfinder – Mehrere Live-Ansichten</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 15px;
+  }
+  iframe {
+    width: 100%;
+    height: 300px;
+    border: 1px solid #ccc;
+  }
+</style>
+</head>
+<body><h1>Live-Lokfinder (automatisch alle 5 Minuten)</h1>
+<p>Jedes Fenster zeigt eine andere Lok-URL.</p><div class="grid" id="iframeGrid"></div><script>
+  // 👉 HIER DEINE 10 URLs EINTRAGEN
+  const urls = [
+    "https://konzern-apps.web.oebb.at/lok/index/1116.0152",
+    "https://konzern-apps.web.oebb.at/lok/index/1116.0241",
+    "https://konzern-apps.web.oebb.at/lok/index/1116.0247",
+    "https://konzern-apps.web.oebb.at/lok/index/1116.0216",
+    "https://konzern-apps.web.oebb.at/lok/index/1116.0190",
+    "https://konzern-apps.web.oebb.at/lok/index/1116.0200",
+    "https://konzern-apps.web.oebb.at/lok/index/1116.0210",
+    "https://konzern-apps.web.oebb.at/lok/index/1116.0220",
+    "https://konzern-apps.web.oebb.at/lok/index/1116.0230",
+    "https://konzern-apps.web.oebb.at/lok/index/1116.0240"
+  ];
+
+  function proxy(url) {
+    return "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+  }
+
+  async function loadIframe(iframe, url) {
+    try {
+      const response = await fetch(proxy(url));
+      const html = await response.text();
+      iframe.srcdoc = html;
+    } catch (e) {
+      iframe.srcdoc = "<p style='color:red;'>Fehler beim Laden</p>";
+      console.error(e);
+    }
+  }
+
+  function init() {
+    const container = document.getElementById('iframeGrid');
+
+    urls.forEach(url => {
+      const iframe = document.createElement('iframe');
+      container.appendChild(iframe);
+
+      loadIframe(iframe, url);
+      setInterval(() => loadIframe(iframe, url), 300000); // 5 Minuten
+    });
+  }
+
+  init();
+</script></body>
+</html>
